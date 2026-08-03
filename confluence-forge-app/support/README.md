@@ -20,7 +20,7 @@ This app deploys through Atlassian Forge. One-time setup, then it's available to
 
 ### Prerequisites
 
-- Node.js 24+ (see **Node version note** below — this project also vendors its own copy, so your system Node doesn't strictly need to be this new)
+- Node.js 24+ (see **Node version note** below)
 - An Atlassian account with access to the target Confluence site
 - The Forge CLI (installed automatically via `npm install`, below)
 
@@ -77,17 +77,19 @@ Follow the prompts to pick the target Confluence site. Once installed, the **Int
 
 ## Node version note
 
-⚠️ Deploying this app needs **Node 24+**. If your system Node is older, don't upgrade it just for this — it could disturb other Node-dependent projects. This project vendors its own local copy at `.local-node/`, so you can run every `forge` command through that instead of your system Node:
+⚠️ Deploying this app needs **Node 24+**. If your system Node is older, don't upgrade it just for this — it could disturb other Node-dependent projects. Instead, use a version manager to get a project-local Node 24 without touching your system install, e.g. with [nvm](https://github.com/nvm-sh/nvm):
 
 ```bash
-./.local-node/bin/node ./node_modules/@forge/cli/out/bin/cli.js deploy -e development
-./.local-node/bin/node ./node_modules/@forge/cli/out/bin/cli.js install
-./.local-node/bin/node ./node_modules/@forge/cli/out/bin/cli.js logs -e development
+nvm install 24
+nvm use 24
+npx forge deploy -e development
 ```
+
+(A local Node 24 binary was previously vendored into this repo at `.local-node/` for the same purpose, but it's no longer checked into git — a single copy of Node is ~100MB+, well past what's reasonable to store in version control. `.local-node/` is now gitignored; use `nvm` instead, or download Node 24 directly from [nodejs.org](https://nodejs.org) and point at its `bin/node` yourself if you'd rather not install nvm.)
 
 **Why Node 24 specifically:** several of `@forge/cli`'s own dependencies (`archiver`, and packages pulled in by `chalk`/`cli-table3`) ship as pure ESM with no CommonJS fallback. Loading them only works reliably through Node's native `require(esm)` support, which is mature starting at Node 24 — on Node 22 it either needs experimental flags (which then collide with another bundled dependency, `v8-compile-cache`) or fails outright. Node 24 just works, with zero code-level workarounds.
 
-If your system Node is already 24+, ignore `.local-node/` entirely and use plain `npx forge ...`.
+If your system Node is already 24+, none of this applies — just use plain `npx forge ...`.
 
 ---
 
@@ -122,7 +124,6 @@ confluence-forge-app/
                                  calls the shared render-core.js for everything else
     app.css
     vendor/                      vendored copies of the shared libraries (see above)
-  .local-node/                 project-local Node 24 binary (see Node version note)
 ```
 
 ---
@@ -137,10 +138,10 @@ Same recalculation engine as the other three options in this project — `INDIRE
 
 - **`You are not currently a member of a Developer Space`** on `forge register` — you haven't created/joined one yet. See step 3 above.
 - **`401 Unauthorized; scope does not match`** on attachment read/write — check `manifest.yml`'s `permissions.scopes` includes `read:attachment:confluence` and `write:attachment:confluence` (the granular `verb:resource:confluence` form — a different naming pattern than the older `verb:confluence-resource` scopes, easy to mix up).
-- **Deploy fails with an ESM-related error** (e.g. mentioning `archiver` or `require() of ES Module`) — your Node is older than 24. Use the vendored `.local-node/` binary (see **Node version note**) or upgrade your system Node.
+- **Deploy fails with an ESM-related error** (e.g. mentioning `archiver` or `require() of ES Module`) — your Node is older than 24. See **Node version note** above.
 - **Macro appears to vanish from a page after an edit** — usually a stale view-mode render cache, not a real bug. Switch to Edit mode to confirm the macro is still there and working, then republish the page to refresh the cached view.
 - **`forge deploy` succeeds but the macro still shows old behavior** — Confluence's Custom UI resources aren't nearly as aggressively cached as, say, SharePoint's (see the SharePoint web part's support doc for a much worse version of this problem), but a hard-refresh of the page clears it if you do hit stale content.
-- **Debugging resolver issues** — `./.local-node/bin/node ./node_modules/@forge/cli/out/bin/cli.js logs -e development` shows the resolver's own `console.log`/`console.error` output, since it runs server-side and you can't just open browser DevTools for it.
+- **Debugging resolver issues** — `npx forge logs -e development` shows the resolver's own `console.log`/`console.error` output, since it runs server-side and you can't just open browser DevTools for it.
 
 ---
 
