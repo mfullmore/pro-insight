@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+.local-node/
+
+# Claude Code local settings
+.claude/
+
+# Build output
+dist/
+lib/
+temp/
+*.tsbuildinfo
+
+# OS files
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
+# Env / secrets
+.env
+.env.*
+!.env.example
