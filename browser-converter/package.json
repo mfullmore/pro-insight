@@ -1,0 +1,24 @@
+{
+  "name": "browser-converter",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build:hf": "esbuild core/hf-entry.js --bundle --minify --platform=browser --define:define=undefined --outfile=core/hyperformula.bundle.js",
+    "build:xlsx": "esbuild node_modules/xlsx/dist/xlsx.core.min.js --minify --define:exports=undefined --define:module=undefined --define:define=undefined --outfile=core/xlsx.core.min.js",
+    "build:converter": "node converter/build-converter.js",
+    "build:demo": "node tools/generate-html.js",
+    "test:fidelity": "node tests/test-fidelity.js && node tests/test-fidelity-2.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Option 1: standalone browser converter (converter.html) that turns any budget .xlsx into a self-contained interactive HTML page, entirely client-side. No install, no server.",
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "hyperformula": "^3.3.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1"
+  }
+}

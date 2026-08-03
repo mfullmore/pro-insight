@@ -1,0 +1,89 @@
+:root {
+  --paper: #e9f0e6;
+  --card: #f6f9f4;
+  --ink: #1e2b22;
+  --ink-muted: #5c6b5f;
+  --rule: #c7d3c2;
+  --rule-strong: #9fb097;
+  --accent: #a97a2e;
+  --accent-ink: #7a5a20;
+  /* Fixed (not redefined in the dark-theme block below) — see the matching
+     comment in browser-converter/core/app.css for why. */
+  --btn-bg: #7a5a20;
+  --btn-fg: #ffffff;
+  --focus: #6b8f7a;
+  --status-good-bg: #dcefe2;
+  --status-good-fg: #2f6b4f;
+  --status-bad-bg: #f5e3dc;
+  --status-bad-fg: #ae4b31;
+  --shadow: 0 1px 2px rgba(30, 43, 34, 0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #12201a; --card: #192821; --ink: #e7efe6; --ink-muted: #9fb0a2;
+    --rule: #2c3d33; --rule-strong: #3b4f42; --accent: #d6a94b; --accent-ink: #f0d9a2; --focus: #7fae94;
+    --status-good-bg: #1e3a2b; --status-good-fg: #7fd9a4;
+    --status-bad-bg: #3a2018; --status-bad-fg: #e38a6e; --shadow: 0 1px 2px rgba(0,0,0,0.35);
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 16px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.serif { font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif; }
+
+h1 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+.subtitle { color: var(--ink-muted); font-size: 0.85rem; margin-bottom: 18px; }
+
+.btn {
+  display: block;
+  width: 100%;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--btn-fg);
+  background: var(--btn-bg);
+  border: none;
+  border-radius: 4px;
+  padding: 10px 14px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+.btn:hover { filter: brightness(1.08); }
+.btn:disabled { opacity: 0.6; cursor: default; }
+.btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.status {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  color: var(--ink-muted);
+  display: none;
+}
+.status.visible { display: block; }
+.status.good { background: var(--status-good-bg); color: var(--status-good-fg); border-color: var(--status-good-fg); }
+.status.bad { background: var(--status-bad-bg); color: var(--status-bad-fg); border-color: var(--status-bad-fg); }
+
+.notes {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+}
+.notes ul { margin: 0; padding-left: 16px; }
+.notes li { margin-bottom: 5px; }

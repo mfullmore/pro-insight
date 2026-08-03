@@ -1,0 +1,23 @@
+{
+  // converter.html, taskpane.html, and dist/*.html are generated build
+  // artifacts — each embeds the full vendored SheetJS/HyperFormula source
+  // as literal <script> content. VS Code's built-in HTML language service
+  // runs embedded scripts through the JS/TS diagnostics engine by default,
+  // which can misfire on that much minified, ambiguous-looking code (e.g.
+  // "JSX expressions must have one parent element" on lines that are
+  // actually SheetJS's internal XML template strings, not JSX). Disabling
+  // script validation for .html avoids false positives on these files —
+  // there's no real TypeScript/JSX anywhere in this project.
+  "html.validate.scripts": false,
+
+  "files.watcherExclude": {
+    "**/browser-converter/converter.html": true,
+    "**/browser-converter/dist/**": true,
+    "**/office-addin/taskpane.html": true
+  },
+  "search.exclude": {
+    "**/browser-converter/converter.html": true,
+    "**/browser-converter/dist/**": true,
+    "**/office-addin/taskpane.html": true
+  }
+}

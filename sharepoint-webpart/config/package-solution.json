@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "interactive-plan-webpart-client-side-solution",
+    "id": "6dc18ce2-4a29-4fee-a142-048e5ccf7b3a",
+    "version": "1.0.0.1",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.23.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "interactive-plan-webpart description"
+      },
+      "longDescription": {
+        "default": "interactive-plan-webpart description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "interactive-plan-webpart Feature",
+        "description": "The feature that activates elements of the interactive-plan-webpart solution.",
+        "id": "7db8ab32-5f99-4079-a1b0-03be90de7eb2",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/interactive-plan-webpart.sppkg"
+  }
+}

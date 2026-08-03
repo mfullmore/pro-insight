@@ -1,0 +1,335 @@
+<title>Interactive Budget Plans — Implementation Options</title>
+<style>
+:root {
+  --paper: #e9f0e6;
+  --card: #f6f9f4;
+  --card-alt: #eef4ea;
+  --ink: #1e2b22;
+  --ink-muted: #5c6b5f;
+  --ink-faint: #8a988c;
+  --rule: #c7d3c2;
+  --rule-strong: #9fb097;
+  --accent: #a97a2e;
+  --accent-ink: #7a5a20;
+  --accent-tint: #f1e3c9;
+  --focus: #6b8f7a;
+  --good-bg: #dcefe2;
+  --good-fg: #2f6b4f;
+  --shadow: 0 1px 2px rgba(30, 43, 34, 0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #12201a; --card: #192821; --card-alt: #1e2f26;
+    --ink: #e7efe6; --ink-muted: #9fb0a2; --ink-faint: #6d7d70;
+    --rule: #2c3d33; --rule-strong: #3b4f42;
+    --accent: #d6a94b; --accent-ink: #f0d9a2; --accent-tint: #33291a;
+    --focus: #7fae94; --good-bg: #1e3a2b; --good-fg: #7fd9a4;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35);
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #12201a; --card: #192821; --card-alt: #1e2f26;
+  --ink: #e7efe6; --ink-muted: #9fb0a2; --ink-faint: #6d7d70;
+  --rule: #2c3d33; --rule-strong: #3b4f42;
+  --accent: #d6a94b; --accent-ink: #f0d9a2; --accent-tint: #33291a;
+  --focus: #7fae94; --good-bg: #1e3a2b; --good-fg: #7fd9a4;
+  --shadow: 0 1px 2px rgba(0,0,0,0.35);
+}
+:root[data-theme="light"] {
+  --paper: #e9f0e6; --card: #f6f9f4; --card-alt: #eef4ea;
+  --ink: #1e2b22; --ink-muted: #5c6b5f; --ink-faint: #8a988c;
+  --rule: #c7d3c2; --rule-strong: #9fb097;
+  --accent: #a97a2e; --accent-ink: #7a5a20; --accent-tint: #f1e3c9;
+  --focus: #6b8f7a; --good-bg: #dcefe2; --good-fg: #2f6b4f;
+  --shadow: 0 1px 2px rgba(30,43,34,0.08);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+}
+.serif { font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif; }
+.num { font-family: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace; }
+
+#page {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+header {
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--rule-strong);
+  margin-bottom: 28px;
+}
+h1 {
+  font-size: 1.7rem;
+  font-weight: 600;
+  margin: 0 0 6px;
+  text-wrap: balance;
+}
+.subtitle { color: var(--ink-muted); font-size: 1rem; max-width: 62ch; }
+
+.intro { font-size: 1rem; max-width: 68ch; margin-bottom: 24px; }
+.intro p { margin: 0 0 12px; }
+
+.shared-box {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 18px 22px;
+  margin-bottom: 36px;
+  box-shadow: var(--shadow);
+}
+.shared-box h2 {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: var(--accent-ink);
+  margin: 0 0 10px;
+}
+.shared-box ul { margin: 0; padding-left: 20px; }
+.shared-box li { margin-bottom: 6px; }
+.shared-box li:last-child { margin-bottom: 0; }
+
+h2.section-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 16px;
+}
+
+.table-wrap { overflow-x: auto; margin-bottom: 40px; border: 1px solid var(--rule); border-radius: 8px; box-shadow: var(--shadow); }
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  font-size: 0.86rem;
+  background: var(--card);
+  min-width: 760px;
+}
+th, td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+thead th {
+  background: var(--card-alt);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-muted);
+  font-weight: 700;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+}
+tbody th {
+  font-weight: 600;
+  color: var(--ink-muted);
+  white-space: nowrap;
+  background: var(--card-alt);
+  font-size: 0.78rem;
+}
+tbody tr:last-child td, tbody tr:last-child th { border-bottom: none; }
+td .fine { display: block; color: var(--ink-faint); font-size: 0.78rem; margin-top: 3px; }
+
+.chip {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--good-bg);
+  color: var(--good-fg);
+  margin-bottom: 4px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+  margin-bottom: 40px;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+.card .eyebrow {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-ink);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.card h3 { font-size: 1.02rem; font-weight: 600; margin: 0 0 8px; }
+.card p { font-size: 0.87rem; color: var(--ink-muted); margin: 0 0 10px; }
+.card .best-for { font-size: 0.82rem; border-top: 1px solid var(--rule); padding-top: 10px; margin-top: auto; }
+.card .best-for strong { color: var(--ink); }
+
+.closing {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 20px 24px;
+  box-shadow: var(--shadow);
+  font-size: 0.92rem;
+}
+.closing h2 { font-size: 1.05rem; font-weight: 600; margin: 0 0 10px; }
+.closing p { margin: 0 0 10px; }
+.closing p:last-child { margin-bottom: 0; }
+.closing ol { margin: 0; padding-left: 20px; }
+.closing li { margin-bottom: 6px; }
+
+footer {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+}
+</style>
+
+<div id="page">
+
+<header>
+  <h1 class="serif">Interactive Budget Plans — Implementation Options</h1>
+  <div class="subtitle">Four working implementations of the same idea: turn a department budget spreadsheet into an interactive, editable page that lives where your team already works. This compares them so you can pick a starting point.</div>
+</header>
+
+<div class="intro">
+  <p>All four options do the same core job — parse a budget <span class="num">.xlsx</span>, recalculate its formulas live as someone edits a value, and produce a new version with those edits captured. What differs is how a plan gets created, where it lives, and how much needs to be installed or deployed to get there. None of them require adopting a new platform: each one meets your team inside a tool it likely already uses.</p>
+</div>
+
+<div class="shared-box">
+  <h2>Shared across all four</h2>
+  <ul>
+    <li>Same conversion engine (SheetJS to parse the workbook, HyperFormula to recalculate it) — the underlying behavior and limitations are identical regardless of which option you pick.</li>
+    <li>Same safety principle: a formula the engine can't evaluate (dynamic <span class="num">INDIRECT()</span> lookups, Excel Table references) is flagged explicitly and shown as an error, never silently replaced with a plausible-looking wrong number.</li>
+    <li>Data never leaves your organization's own platform in any of the four — no third-party server is involved in any option.</li>
+  </ul>
+</div>
+
+<h2 class="section-title">At a glance</h2>
+<div class="table-wrap">
+<table>
+  <thead>
+    <tr>
+      <th>Dimension</th>
+      <th>1 · Browser Converter</th>
+      <th>2 · Excel Add-in</th>
+      <th>3a · Confluence App</th>
+      <th>3b · SharePoint Web Part</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">Where it runs</th>
+      <td>Any browser, as a standalone file</td>
+      <td>Inside Excel, via a ribbon button</td>
+      <td>Inside a Confluence page</td>
+      <td>Inside a SharePoint page</td>
+    </tr>
+    <tr>
+      <th scope="row">Getting started</th>
+      <td>Nothing to install — open the file</td>
+      <td>Sideload, or IT deploys it org-wide</td>
+      <td>Installed once per Confluence site</td>
+      <td>Added once via the App Catalog</td>
+    </tr>
+    <tr>
+      <th scope="row">Creating a plan</th>
+      <td>Drag the <span class="num">.xlsx</span> onto the page</td>
+      <td>Click "Export" while the file is open</td>
+      <td>Automatic — reads the page's attached file</td>
+      <td>Configured once to point at a library file</td>
+    </tr>
+    <tr>
+      <th scope="row">Saving edits</th>
+      <td>Download a new <span class="num">.xlsx</span>, share it manually<span class="fine">Same everywhere the file lives — email, re-upload, etc.</span></td>
+      <td>Download a new <span class="num">.xlsx</span>, share it manually</td>
+      <td>Writes the new version straight back to the page</td>
+      <td>Writes the new version straight back to the library</td>
+    </tr>
+    <tr>
+      <th scope="row">Formula-fidelity risk</th>
+      <td>Same engine limitation; only shows up if someone edits a value that feeds an unsupported formula</td>
+      <td>Same engine limitation for edits; the very first export is always accurate, since it reads Excel's own computed values<span class="fine">Confirmed one real difference in testing: Excel's own API resolves an Excel Table reference into a raw <span class="num">#REF!</span> before this tool ever sees the formula text, so it isn't caught by the upfront warning banner the way it is in the other three options — but the recalculation engine still shows it as a live error rather than a wrong number, so the core safety guarantee held either way.</span></td>
+      <td>Same as option 1</td>
+      <td>Same as option 1</td>
+    </tr>
+    <tr>
+      <th scope="row">Where data travels</th>
+      <td>Never leaves the browser</td>
+      <td>Never leaves Excel or your own hosting</td>
+      <td>Stays inside your Atlassian tenant</td>
+      <td>Stays inside your Microsoft 365 tenant</td>
+    </tr>
+    <tr>
+      <th scope="row">Deployment path</th>
+      <td>None required — share a file, or host it anywhere</td>
+      <td>Sideload for testing → SharePoint catalog or Microsoft 365 admin center for rollout</td>
+      <td>Forge deploy → install into a site</td>
+      <td>SharePoint App Catalog (site or tenant-wide)</td>
+    </tr>
+    <tr>
+      <th scope="row">Verified so far</th>
+      <td><span class="chip">Fully tested</span><span class="fine">Uploaded real workbooks, edited live, confirmed the save round-trip in an actual browser</span></td>
+      <td><span class="chip">Fully tested</span><span class="fine">Sideloaded into Excel for the web against a real workbook — read live values, formulas, and formats directly from Excel's own API, exported a working interactive page, confirmed live editing and no errors</span></td>
+      <td><span class="chip">Fully tested</span><span class="fine">Deployed and installed on a live Confluence site — reads a real attached workbook, renders correctly, and writes a new version back, confirmed in actual attachment version history</span></td>
+      <td><span class="chip">Fully tested</span><span class="fine">Installed via a real tenant App Catalog on a live Microsoft 365 site — reads a workbook from a document library, renders all sheets, edits recalculate live, and "Save as new version" confirmed via the file's actual SharePoint version history (v1.0 → v2.0). Also verified a UI accessibility fix (button contrast) rendering correctly on the live page in both light and dark theme, confirmed via the page's own computed styles, not just visually.</span></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 class="section-title">Each option in brief</h2>
+<div class="cards">
+  <div class="card">
+    <div class="eyebrow">Option 1</div>
+    <h3 class="serif">Browser Converter</h3>
+    <p>A single page you open in any browser. Drop in a budget spreadsheet, get back an interactive page — no account, no install, no approval process of any kind.</p>
+    <div class="best-for">Best for: <strong>proving the idea fast</strong>, or teams without the ability to install anything.</div>
+  </div>
+  <div class="card">
+    <div class="eyebrow">Option 2</div>
+    <h3 class="serif">Excel Add-in</h3>
+    <p>A button inside Excel itself. Reads the workbook's already-computed values directly from Excel, so the export always starts accurate — no re-derivation risk on the first pass. Sideloaded and confirmed working in Excel for the web against a real budget workbook.</p>
+    <div class="best-for">Best for: teams already standardized on <strong>Microsoft 365 admin tooling</strong> for add-in rollout.</div>
+  </div>
+  <div class="card">
+    <div class="eyebrow">Option 3a</div>
+    <h3 class="serif">Confluence App</h3>
+    <p>Lives directly on the Confluence page as a macro. Reads whatever budget file is already attached — no upload step — and writes new versions straight back as an attachment. Confirmed working on a live site, including a real version write-back.</p>
+    <div class="best-for">Best for: teams whose budgets already live in <strong>Confluence</strong>, wanting zero extra steps for anyone viewing the page.</div>
+  </div>
+  <div class="card">
+    <div class="eyebrow">Option 3b</div>
+    <h3 class="serif">SharePoint Web Part</h3>
+    <p>Lives directly on a SharePoint page. Reads a configured file from a document library and writes new versions straight back — the same native experience as the Confluence option, for SharePoint. Confirmed working end to end on a live Microsoft 365 site, including a real version write-back.</p>
+    <div class="best-for">Best for: teams whose budgets already live in <strong>SharePoint</strong>, wanting the same zero-step experience.</div>
+  </div>
+</div>
+
+<div class="closing">
+  <h2 class="serif">A reasonable way to sequence this</h2>
+  <p>These aren't mutually exclusive — the underlying conversion logic is shared, so trying one doesn't commit you to it.</p>
+  <ol>
+    <li><strong>Start with the Browser Converter.</strong> It needs no approval from anyone, so it's the fastest way to put a real interactive plan in front of actual budget owners and see whether the core idea lands before investing further.</li>
+    <li><strong>Once there's buy-in, pick the platform integration that matches how your organization is actually set up</strong> — the Excel Add-in if rollout goes through Microsoft 365 admin tooling, the Confluence or SharePoint option if budget pages already live there and the "no separate step for anyone" experience is worth the deployment effort.</li>
+    <li><strong>The native platform options (3a/3b) are the only two that remove the manual save/re-share step entirely</strong> — worth weighing that against their deployment overhead: both required real one-time platform setup (a Confluence Developer Space, a SharePoint tenant App Catalog) before the app could even be installed.</li>
+  </ol>
+</div>
+
+<footer>Prepared from four working implementations built this session — see each project's own directory for the underlying code. All four options have now been tested against a real environment: the Browser Converter, Confluence app, and SharePoint web part against live sites with confirmed save round-trips, and the Excel Add-in sideloaded into Excel for the web against a real workbook.</footer>
+
+</div>

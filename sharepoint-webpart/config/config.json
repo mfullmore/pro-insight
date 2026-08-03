@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "interactive-plan-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/interactivePlan/InteractivePlanWebPart.js",
+          "manifest": "./src/webparts/interactivePlan/InteractivePlanWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "InteractivePlanWebPartStrings": "lib/webparts/interactivePlan/loc/{locale}.js"
+  }
+}

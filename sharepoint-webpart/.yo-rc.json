@@ -1,0 +1,23 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "whichFolder": "subdir",
+    "solutionName": "interactive-plan-webpart",
+    "environment": "spo",
+    "packageManager": "npm",
+    "useGulp": false,
+    "componentType": "webpart",
+    "template": "none",
+    "componentName": "InteractivePlan",
+    "componentDescription": "Reads a budget workbook from this site and renders it as an interactive, editable plan.",
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "22.1.0",
+    "sdksVersions": {},
+    "version": "1.23.2",
+    "libraryName": "interactive-plan-webpart",
+    "libraryId": "6dc18ce2-4a29-4fee-a142-048e5ccf7b3a",
+    "solutionShortDescription": "interactive-plan-webpart description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false
+  }
+}

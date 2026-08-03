@@ -1,0 +1,28 @@
+# Registered via `forge register "Interactive Plan" -s <budget-insights space id>`,
+# which assigned the real app.id below in place of the earlier placeholder.
+modules:
+  macro:
+    - key: interactive-plan-macro
+      title: Interactive Plan
+      description: Renders the budget workbook attached to this page as an
+        interactive, editable plan — no download, no separate tool.
+      resource: main
+      resolver:
+        function: resolver
+  function:
+    - key: resolver
+      handler: resolvers/index.handler
+resources:
+  - key: main
+    path: static/main
+permissions:
+  scopes:
+    - write:confluence-file
+    - read:confluence-content.all
+    - write:confluence-content
+    - read:attachment:confluence
+    - write:attachment:confluence
+app:
+  runtime:
+    name: nodejs22.x
+  id: ari:cloud:ecosystem::app/a35e4290-3de8-4e8f-891a-ed11bb1bce72

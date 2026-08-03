@@ -1,0 +1,26 @@
+{
+  "name": "confluence-forge-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Option 3 (Confluence half): a Forge Custom UI macro that reads the budget .xlsx already attached to the page, renders it as an interactive plan in place, and writes a new version back as an attachment — no download/re-upload round trip. Sibling to ../browser-converter (option 1) and ../office-addin (option 2); reuses their app rendering approach and vendored libraries.",
+  "scripts": {
+    "build": "node build-static.js && esbuild forge-bridge-entry.js --bundle --minify --outfile=static/main/vendor/forge-bridge.bundle.js --platform=browser",
+    "lint": "forge lint"
+  },
+  "dependencies": {
+    "@forge/api": "^8.0.2",
+    "@forge/bridge": "^6.1.1",
+    "@forge/resolver": "^2.0.0"
+  },
+  "devDependencies": {
+    "@forge/cli": "^13.2.0",
+    "esbuild": "^0.28.1"
+  },
+  "allowScripts": {
+    "@forge/cli@13.2.0": true,
+    "cloudflared@0.7.0": true,
+    "keytar@7.9.0": true,
+    "esbuild@0.28.1": true,
+    "iframe-resizer@4.4.5": true
+  }
+}
