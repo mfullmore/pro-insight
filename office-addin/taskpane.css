@@ -1,75 +1,117 @@
 :root {
-  --paper: #e9f0e6;
-  --card: #f6f9f4;
-  --ink: #1e2b22;
-  --ink-muted: #5c6b5f;
-  --rule: #c7d3c2;
-  --rule-strong: #9fb097;
-  --accent: #a97a2e;
-  --accent-ink: #7a5a20;
-  /* Fixed (not redefined in the dark-theme block below) — see the matching
+  --paper: #f6f3ec;
+  --card: #ffffff;
+  --card-alt: #efe9db;
+  --ink: #1c2430;
+  --ink-muted: #5b6472;
+  --rule: #e2dbc9;
+  --rule-strong: #c9bfa4;
+  --accent: #1e3a5f;
+  --accent-ink: #16293f;
+  --gold: #9c7726;
+  --gold-ink: #7a5c1c;
+  --gold-tint: #f1e6cd;
+  /* Fixed (not redefined in the dark-theme blocks below) — see the matching
      comment in browser-converter/core/app.css for why. */
-  --btn-bg: #7a5a20;
+  --btn-bg: #16293f;
   --btn-fg: #ffffff;
-  --focus: #6b8f7a;
+  --focus: #9c7726;
   --status-good-bg: #dcefe2;
   --status-good-fg: #2f6b4f;
-  --status-bad-bg: #f5e3dc;
-  --status-bad-fg: #ae4b31;
-  --shadow: 0 1px 2px rgba(30, 43, 34, 0.08);
+  --status-bad-bg: #f5e0d8;
+  --status-bad-fg: #a4402c;
+  --shadow: 0 1px 2px rgba(28, 36, 48, 0.08);
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #12201a; --card: #192821; --ink: #e7efe6; --ink-muted: #9fb0a2;
-    --rule: #2c3d33; --rule-strong: #3b4f42; --accent: #d6a94b; --accent-ink: #f0d9a2; --focus: #7fae94;
-    --status-good-bg: #1e3a2b; --status-good-fg: #7fd9a4;
-    --status-bad-bg: #3a2018; --status-bad-fg: #e38a6e; --shadow: 0 1px 2px rgba(0,0,0,0.35);
+    --paper: #141a22; --card: #1b2330; --card-alt: #202a38;
+    --ink: #eef1f5; --ink-muted: #aab4c0;
+    --rule: #2a3444; --rule-strong: #3c4a5e;
+    --accent: #86aad4; --accent-ink: #d3e3f2;
+    --gold: #d9b45c; --gold-ink: #d9b45c; --gold-tint: #362c17;
+    --focus: #d9b45c;
+    --status-good-bg: #1e3a2b; --status-good-fg: #86dead;
+    --status-bad-bg: #3d241b; --status-bad-fg: #e79274;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35);
   }
+}
+:root[data-theme="dark"] {
+  --paper: #141a22; --card: #1b2330; --card-alt: #202a38;
+  --ink: #eef1f5; --ink-muted: #aab4c0;
+  --rule: #2a3444; --rule-strong: #3c4a5e;
+  --accent: #86aad4; --accent-ink: #d3e3f2;
+  --gold: #d9b45c; --gold-ink: #d9b45c; --gold-tint: #362c17;
+  --focus: #d9b45c;
+  --status-good-bg: #1e3a2b; --status-good-fg: #86dead;
+  --status-bad-bg: #3d241b; --status-bad-fg: #e79274;
+  --shadow: 0 1px 2px rgba(0,0,0,0.35);
+}
+:root[data-theme="light"] {
+  --paper: #f6f3ec; --card: #ffffff; --card-alt: #efe9db;
+  --ink: #1c2430; --ink-muted: #5b6472;
+  --rule: #e2dbc9; --rule-strong: #c9bfa4;
+  --accent: #1e3a5f; --accent-ink: #16293f;
+  --gold: #9c7726; --gold-ink: #7a5c1c; --gold-tint: #f1e6cd;
+  --focus: #9c7726;
+  --status-good-bg: #dcefe2; --status-good-fg: #2f6b4f;
+  --status-bad-bg: #f5e0d8; --status-bad-fg: #a4402c;
+  --shadow: 0 1px 2px rgba(28,36,48,0.08);
 }
 
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  padding: 16px;
+  padding: 18px 16px;
   background: var(--paper);
   color: var(--ink);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 13px;
   line-height: 1.5;
 }
-.serif { font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif; }
+
+.eyebrow { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 4px; }
 
 h1 {
   font-size: 1.05rem;
-  font-weight: 600;
+  font-weight: 800;
+  letter-spacing: -0.01em;
   margin: 0 0 4px;
 }
 .subtitle { color: var(--ink-muted); font-size: 0.85rem; margin-bottom: 18px; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
 
 .btn {
   display: block;
   width: 100%;
   font: inherit;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--btn-fg);
   background: var(--btn-bg);
   border: none;
-  border-radius: 4px;
-  padding: 10px 14px;
+  border-radius: 8px;
+  padding: 11px 14px;
   cursor: pointer;
   box-shadow: var(--shadow);
 }
-.btn:hover { filter: brightness(1.08); }
-.btn:disabled { opacity: 0.6; cursor: default; }
+.btn:hover { filter: brightness(1.15); }
+.btn:disabled { opacity: 0.6; cursor: default; filter: none; }
 .btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
 .status {
   margin-top: 12px;
   padding: 10px 12px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 0.85rem;
-  background: var(--card);
+  background: var(--card-alt);
   border: 1px solid var(--rule);
   color: var(--ink-muted);
   display: none;

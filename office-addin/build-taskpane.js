@@ -34,11 +34,13 @@ ${taskpaneCss}
 </style>
 </head>
 <body>
-  <h1 class="serif">Interactive Plan Exporter</h1>
+  <h1>Interactive Plan Exporter</h1>
   <div class="subtitle">Reads this workbook and produces a self-contained interactive page — nothing is uploaded anywhere.</div>
 
-  <button id="export-btn" class="btn" type="button" disabled>Export as Interactive Plan</button>
-  <div id="status" class="status"></div>
+  <div class="card">
+    <button id="export-btn" class="btn" type="button" disabled>Export as Interactive Plan</button>
+    <div id="status" class="status"></div>
+  </div>
 
   <div class="notes">
     <ul>
