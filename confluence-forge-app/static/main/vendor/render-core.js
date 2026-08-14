@@ -149,70 +149,103 @@
   // opts: { root, payload, engine, sourceLine, footerText, onSave, saveLabel }
   // onSave is optional — omit it to render without a save button (a consumer
   // not ready to save yet, or one that puts the button elsewhere).
+  //
+  // Deliberately generic, same as convert-core.js: no assumption about sheet
+  // names, column meaning, or layout. The sidebar shows sheet names plus how
+  // many formulas are flagged per sheet (always knowable, always accurate) —
+  // never a computed amount, since summing arbitrary cells isn't reliably
+  // meaningful on a workbook this code doesn't understand the shape of.
   function renderApp(opts) {
     const { root, payload, engine } = opts;
     root.innerHTML = '';
 
-    const masthead = el('div', { class: 'masthead' }, [
-      el('div', {}, [
-        el('h1', { class: 'serif', text: 'Interactive Plan' }),
-        el('div', { class: 'source', text: opts.sourceLine || `Source: ${payload.sourceFile} · recalculated live in your browser` }),
-      ]),
-      opts.onSave ? el('button', { class: 'btn', type: 'button', text: opts.saveLabel || 'Save as new version…', onclick: opts.onSave }) : null,
-    ]);
-    root.appendChild(masthead);
+    const app = el('div', { class: 'app' });
+    const rail = el('aside', { class: 'rail' });
+    const content = el('main', { class: 'content' });
+    app.appendChild(rail);
+    app.appendChild(content);
+    root.appendChild(app);
+
+    rail.appendChild(el('div', { class: 'rail-head' }, [
+      el('h1', { text: 'Interactive Plan' }),
+      el('div', { class: 'source', text: opts.sourceLine || `Source: ${payload.sourceFile} · recalculated live in your browser` }),
+    ]));
 
     const unsupported = payload.unsupportedFormulas || [];
+    const unsupportedByAddr = new Map();
+    unsupported.forEach((u) => unsupportedByAddr.set(`${u.sheet}|${u.row},${u.col}`, u));
+    const unsupportedBySheet = new Map();
+    unsupported.forEach((u) => unsupportedBySheet.set(u.sheet, (unsupportedBySheet.get(u.sheet) || 0) + 1));
+
     if (unsupported.length) {
       const n = unsupported.length;
-      const warn = el('div', { class: 'warning-banner' }, [
-        el('div', { class: 'warning-title', text: `${n} formula${n === 1 ? '' : 's'} couldn't be recalculated live` }),
-        el('div', {
-          class: 'warning-body',
-          text: "Each cell below shows Excel's last saved value, marked as frozen (✱). Anything that depends on it still shows as an error until the source formula is fixed.",
-        }),
-      ]);
-      const list = el('ul', { class: 'warning-list' });
+      const details = el('details', { class: 'flag-disclosure' });
+      details.appendChild(el('summary', { text: `${n} formula${n === 1 ? '' : 's'} flagged` }));
+      const body = el('div', { class: 'flag-detail' });
+      body.appendChild(el('div', {
+        class: 'flag-detail-intro',
+        text: "Each cell below shows Excel's last saved value, marked as frozen (✱). Anything that depends on it still shows as an error until the source formula is fixed.",
+      }));
+      const list = el('ul', { class: 'flag-list' });
       unsupported.forEach((u) => {
         list.appendChild(el('li', {}, [
-          el('span', { class: 'num warning-loc', text: `${u.sheet}!${u.addr}` }),
+          el('span', { class: 'num flag-loc', text: `${u.sheet}!${u.addr}` }),
           el('span', { text: ' — ' + u.reason }),
         ]));
       });
-      warn.appendChild(list);
-      root.appendChild(warn);
+      body.appendChild(list);
+      details.appendChild(body);
+      rail.appendChild(details);
     }
 
-    const unsupportedByAddr = new Map();
-    unsupported.forEach((u) => unsupportedByAddr.set(`${u.sheet}|${u.row},${u.col}`, u));
-
-    const tabBar = el('div', { class: 'sheet-tabs' });
-    root.appendChild(tabBar);
-    const gridContainer = el('div');
-    root.appendChild(gridContainer);
+    const nav = el('nav', { class: 'deptnav' });
+    rail.appendChild(nav);
 
     const state = { activeSheet: payload.sheetNames[0] };
 
-    function renderTabs() {
-      tabBar.innerHTML = '';
+    function renderNav() {
+      nav.innerHTML = '';
       payload.sheetNames.forEach((name) => {
-        tabBar.appendChild(el('button', {
+        const flagCount = unsupportedBySheet.get(name) || 0;
+        nav.appendChild(el('button', {
           type: 'button',
-          class: 'sheet-tab' + (name === state.activeSheet ? ' active' : ''),
-          text: name,
-          onclick: () => { state.activeSheet = name; renderTabs(); renderGrid(); },
-        }));
+          class: 'nav-item' + (name === state.activeSheet ? ' active' : ''),
+          onclick: () => { state.activeSheet = name; renderNav(); renderPanel(); },
+        }, [
+          el('span', { class: 'nav-row' }, [
+            el('span', { class: 'name', text: name }),
+            flagCount ? el('span', {
+              class: 'nav-flag',
+              title: `${flagCount} formula${flagCount === 1 ? '' : 's'} flagged in this sheet`,
+              text: String(flagCount),
+            }) : null,
+          ]),
+        ]));
       });
     }
 
-    function renderGrid() {
-      gridContainer.innerHTML = '';
+    rail.appendChild(el('div', { class: 'rail-spacer' }));
+    if (opts.onSave) {
+      rail.appendChild(el('button', { class: 'btn', type: 'button', text: opts.saveLabel || 'Save as new version…', onclick: opts.onSave }));
+    }
+
+    const panelWrap = el('div', { class: 'panel-wrap' });
+    content.appendChild(panelWrap);
+
+    function renderPanel() {
+      panelWrap.innerHTML = '';
       const activeSheet = state.activeSheet;
       const { rows, cols } = payload.dims[activeSheet] || { rows: 0, cols: 0 };
-      const card = el('div', { class: 'dept-card' });
+
+      panelWrap.appendChild(el('div', { class: 'panel-head' }, [
+        el('h2', { text: activeSheet }),
+        el('div', { class: 'panel-meta', text: rows && cols ? `${rows} row${rows === 1 ? '' : 's'} × ${cols} column${cols === 1 ? '' : 's'}` : '' }),
+      ]));
+
+      const card = el('div', { class: 'card' });
       if (rows === 0 || cols === 0) {
         card.appendChild(el('div', { class: 'empty-sheet', text: 'This sheet is empty.' }));
-        gridContainer.appendChild(card);
+        panelWrap.appendChild(card);
         return;
       }
 
@@ -272,7 +305,7 @@
               type: 'number', class: 'num', value: engine.getVal(activeSheet, r, c),
               onchange: (e) => {
                 const n = parseFloat(e.target.value);
-                if (!isNaN(n)) { engine.setVal(activeSheet, r, c, n); renderGrid(); }
+                if (!isNaN(n)) { engine.setVal(activeSheet, r, c, n); renderPanel(); }
               },
             });
             tr.appendChild(el('td', { class: 'num input-cell' }, [input]));
@@ -285,13 +318,13 @@
       table.appendChild(tbody);
       scroll.appendChild(table);
       card.appendChild(scroll);
-      gridContainer.appendChild(card);
+      panelWrap.appendChild(card);
     }
 
-    renderTabs();
-    renderGrid();
+    renderNav();
+    renderPanel();
 
-    root.appendChild(el('div', {
+    content.appendChild(el('div', {
       class: 'footer',
       text: opts.footerText || `Generated from ${payload.sourceFile}. Formulas recalculate client-side via HyperFormula — no data leaves the browser.`,
     }));
