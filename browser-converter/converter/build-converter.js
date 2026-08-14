@@ -40,7 +40,7 @@ ${converterCss}
 </head>
 <body>
 <div id="page">
-  <h1 class="serif">Budget Plan Converter</h1>
+  <h1>Budget Plan Converter</h1>
   <div class="subtitle">Turn a department budget spreadsheet into an interactive page. Runs entirely in your browser — nothing is uploaded anywhere.</div>
 
   <div id="dropzone" tabindex="0" role="button" aria-label="Choose or drop a budget spreadsheet">
