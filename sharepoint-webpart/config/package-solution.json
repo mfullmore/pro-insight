@@ -3,7 +3,7 @@
   "solution": {
     "name": "interactive-plan-webpart-client-side-solution",
     "id": "6dc18ce2-4a29-4fee-a142-048e5ccf7b3a",
-    "version": "1.0.0.2",
+    "version": "1.0.0.4",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,

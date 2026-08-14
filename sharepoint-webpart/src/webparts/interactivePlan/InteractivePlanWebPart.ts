@@ -1,10 +1,8 @@
-// UNVERIFIED AT RUNTIME: this compiles and bundles successfully against the
-// real SPFx toolchain (see below), but has never run inside an actual
-// SharePoint site — there's no Microsoft 365 tenant available in this
-// environment to add the web part to a page and test it. The REST API calls
-// (GetFileByServerRelativeUrl, the X-HTTP-Method: PUT override for writing
-// file content) are written against Microsoft's documented SharePoint REST
-// API, but that's a different confidence level than something click-tested.
+// Verified at runtime against a real Microsoft 365 tenant/App Catalog: read
+// a workbook from a document library, rendered all sheets, live edits and
+// "Save as new version" confirmed via the file's actual SharePoint version
+// history. One real bug found and fixed this way that compiling/bundling
+// cleanly never would have caught — see ensureHyperFormulaLoaded() below.
 import { Version } from '@microsoft/sp-core-library';
 import {
   type IPropertyPaneConfiguration,
@@ -14,14 +12,59 @@ import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { SPHttpClient, type SPHttpClientResponse } from '@microsoft/sp-http';
 
 import './vendor/xlsx.core.min.js';
-import './vendor/hyperformula.bundle.js';
 import './vendor/convert-core.js';
-import './vendor/render-core.js';
 import { APP_CSS } from './vendor/appStyles';
+import { HYPERFORMULA_SOURCE } from './vendor/hyperformulaSource';
+import { RENDER_CORE_SOURCE } from './vendor/renderCoreSource';
 
 declare const XLSX: any;
 declare const InteractivePlanConvert: any;
 declare const InteractivePlanRender: any;
+
+// HyperFormula and render-core.js specifically can't be loaded via a
+// side-effect `import` like xlsx.core.min.js/convert-core.js above.
+//
+// tsc's allowJs pipeline (target: es5) silently corrupts HyperFormula's
+// evaluator when it recompiles the already-built bundle: parsing still
+// works (HyperFormula.version, getCellFormula, getCellType all report
+// correctly) but getCellValue throws "Value of the formula cell is not
+// computed" for every formula, even a trivial =A1+B1 in a brand-new engine
+// — reproduced in complete isolation outside of SPFx/webpack, so this is
+// tsc's ES5 downlevel of this specific minified bundle at fault, not
+// anything SharePoint-specific.
+//
+// render-core.js has to move with it: its outer IIFE captures HyperFormula
+// from `root.HyperFormula` exactly once, at the moment it executes
+// (`factory(root.XLSX, root.HyperFormula)`) — a static `import` runs at
+// module load time, before HyperFormula has been injected, so
+// createEngine would close over `undefined`.
+//
+// Both instead live as inert TS string constants (see vendor.js) and get
+// executed as real, untransformed JS at runtime, in order, so tsc never
+// parses them as code.
+//
+// This tenant enforces a CSP that silently blocks inline <script> execution
+// (confirmed: appending a <script> with .textContent set does nothing, no
+// exception, no console error — this tenant's script-src has no
+// 'unsafe-inline') — the first version of this fix used that approach and
+// it never ran. `new Function(source)()` was confirmed to still be
+// permitted (this tenant's CSP allows 'unsafe-eval') and produces identical
+// results to a real <script> tag for this code (both were verified against
+// the exact same isolated =A1+B1 reproduction). `window.HyperFormula =
+// HyperFormula;` inside the executed source still sets a true global
+// either way, since `window` isn't affected by the enclosing function's
+// scope — only that file's own top-level `var`/`let` declarations stay
+// local to it instead of leaking into global scope, which doesn't matter
+// here since nothing depends on those.
+let engineLibsInjected = false;
+function ensureEngineLibsLoaded(): void {
+  if (engineLibsInjected) return;
+  for (const source of [HYPERFORMULA_SOURCE, RENDER_CORE_SOURCE]) {
+    // eslint-disable-next-line no-new-func -- deliberate: see the comment above this function for why.
+    new Function(source)();
+  }
+  engineLibsInjected = true;
+}
 
 export interface IInteractivePlanWebPartProps {
   fileServerRelativeUrl: string;
@@ -108,6 +151,7 @@ export default class InteractivePlanWebPart extends BaseClientSideWebPart<IInter
     const fileName = filePath.split('/').pop() || 'workbook.xlsx';
     const wb = XLSX.read(buf, { type: 'array', cellFormula: true, cellNF: true });
     this.payload = InteractivePlanConvert.convertWorkbook(wb, fileName);
+    ensureEngineLibsLoaded();
     this.engine = InteractivePlanRender.createEngine(this.payload);
     this.setStatus('');
     this.renderApp();
